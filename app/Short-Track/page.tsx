@@ -6,7 +6,7 @@ import { Bebas_Neue, IBM_Plex_Sans } from "next/font/google";
 import InflationDisplay from "@/components/InflationDisplay/page";
 import ShortTrackerForms from "@/components/ShortTrackerForms/ShortTrackerForms";
 import ShortTrackerChart from "@/components/ShortTrackerChart/ShortTrackerChart";
-
+import ShortTrackerTable from "@/components/ShortTrackerTable/ShortTrackerTable";
 
 const ibm = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -20,22 +20,29 @@ const bebas = Bebas_Neue({
   variable: "--font-roboto-mono",
 });
 
+export interface SimulationResult {
+  current_value: number;
+  current_extra_value: number;
+  goal_achieved: string;
+}
+
 export default function ShortTrack() {
-  // State to hold chart data returned from the simulation form.
-  const [chartData, setChartData] = useState<{ [key: string]: [number, number] }>({});
+  // State to hold full API response data
+  const [responseData, setResponseData] = useState<Record<string, SimulationResult>>({});
 
   return (
     <div className={`${ibm.className} min-h-screen p-8 pb-20 sm:p-20 bg-emerald-800`}>
       <div className="mx-auto max-w-4xl flex flex-col gap-8">
         <h1 className={`${bebas.className} text-4xl text-amber-100 font-bold`}>Short Track</h1>
-        <h2 className={` text-amber-100 font-regular text-l`} >
+        <h2 className="text-amber-100 font-regular text-l">
           Simulação de metas financeiras com base em investimentos mensais e rendimentos.
         </h2>
         <Separator className="bg-white" />
 
-        <ShortTrackerForms onSimulationComplete={setChartData} />
+        <ShortTrackerForms onSimulationComplete={setResponseData} />
         <InflationDisplay />
-        <ShortTrackerChart chartData={chartData} />
+        <ShortTrackerChart chartData={responseData} />
+        <ShortTrackerTable data={responseData} />
       </div>
     </div>
   );

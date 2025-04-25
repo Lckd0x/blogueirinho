@@ -26,7 +26,7 @@ interface InvestmentField {
 }
 
 interface ShortTrackerFormsProps {
-    onSimulationComplete: (chartData: { [key: string]: [number, number] }) => void;
+    onSimulationComplete: (result: Record<string, SimulationResult>) => void;
 }
 
 interface SimulationResult {
@@ -46,7 +46,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
         return_rate: "",
         start_date: "",
         initial_value: "",
-        inflation_rate: "",
+        inflation_rate: "4.0",
     });
 
     const [oneTimeInvestments, setOneTimeInvestments] = useState<InvestmentField[]>([{ date: "", amount: "" }]);
@@ -89,18 +89,18 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
         // Build the payload making sure to parse numbers appropriately.
         const payload = {
             ...form,
-            goal: Number(form.goal || 0),
+            goal: Number(form.goal.replace(",",".") || 0),
             time: Number(form.time || 0),
-            monthly_investment: Number(form.monthly_investment || 0),
-            extra_income: Number(form.extra_income || 0),
-            return_rate: Number(form.return_rate || 0),
-            initial_value: Number(form.initial_value || 0),
-            inflation_rate: Number(form.inflation_rate || 0),
+            monthly_investment: Number(form.monthly_investment.replace(",",".") || 0),
+            extra_income: Number(form.extra_income.replace(",",".") || 0),
+            return_rate: Number(form.return_rate.replace(",",".") || 0)/ 100,
+            initial_value: Number(form.initial_value.replace(",",".") || 0),
+            inflation_rate: Number(form.inflation_rate.replace(",",".") || 4.0) / 100,
             one_time_investments: Object.fromEntries(
-                oneTimeInvestments.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount)])
+                oneTimeInvestments.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",","."))])
             ),
             monthly_investment_changes: Object.fromEntries(
-                monthlyChanges.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount)])
+                monthlyChanges.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",","."))])
             ),
         };
 
@@ -110,14 +110,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
             body: JSON.stringify(payload),
         });
         const json = await res.json();
-        if (json.data) {
-            const mapped: { [key: string]: [number, number] } = {};
-            for (const [key, val] of Object.entries(json.data)) {
-                const result = val as SimulationResult;
-                mapped[key] = [result.current_value, result.current_extra_value];
-            }
-            onSimulationComplete(mapped);
-        }
+        onSimulationComplete(json.data);
     };
 
     return (

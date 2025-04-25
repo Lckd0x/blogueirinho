@@ -5,17 +5,8 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 
 export default function InflationDisplay() {
-  const [years, setYears] = useState(1);
   const [resultValue, setResultValue] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -24,9 +15,9 @@ export default function InflationDisplay() {
       setLoading(true);
 
       const end = new Date();
-      end.setDate(1); // Primeiro dia do mês atual (mês incompleto será excluído)
+      end.setDate(1); // início do mês atual
       const start = new Date(end);
-      start.setFullYear(start.getFullYear() - years); // Subtrai anos
+      start.setMonth(start.getMonth() - 12); // subtrai os meses
 
       const formatDate = (date: Date) =>
         date.toLocaleDateString("pt-BR");
@@ -37,25 +28,15 @@ export default function InflationDisplay() {
         const res = await fetch(url);
         const data = await res.json();
 
-        const yearlyData: Record<string, number> = {};
+        // Soma os valores mês a mês
+        const totalInflation = data.reduce((sum: number, entry: { valor: string; data: string }) => {
+          const original = entry.valor;
+          const parsed = parseInt(original.replace(".", ""));        
+          return sum + parsed;
+        }, 0);
+        
 
-        data.forEach((entry: { data: string; valor: string }) => {
-          const year = entry.data.split("/")[2];
-          const value = parseFloat(entry.valor.replace(",", "."));
-          if (!yearlyData[year]) yearlyData[year] = 0;
-          yearlyData[year] += value;
-        });
-
-        const values = Object.values(yearlyData);
-        let finalValue = 0;
-
-        if (years === 1) {
-          finalValue = values.reduce((acc, curr) => acc + curr, 0);
-        } else {
-          finalValue = values.reduce((acc, curr) => acc + curr, 0) / values.length;
-        }
-
-        setResultValue(finalValue);
+        setResultValue(totalInflation/100);
       } catch (error) {
         console.error("Erro ao buscar dados de inflação:", error);
       } finally {
@@ -64,7 +45,7 @@ export default function InflationDisplay() {
     };
 
     fetchInflation();
-  }, [years]);
+  }, []);
 
   return (
     <Card className="bg-emerald-900 shadow-lg">
@@ -72,33 +53,14 @@ export default function InflationDisplay() {
         <CardTitle className="text-white">Inflação Acumulada</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-2 text-white">
-          <Label className="text-white mr-2 mb-2">Período:</Label>
-          <Select onValueChange={(value) => setYears(Number(value))} defaultValue="1">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Selecione o período" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">Último 1 ano</SelectItem>
-              <SelectItem value="3">Últimos 3 anos</SelectItem>
-              <SelectItem value="5">Últimos 5 anos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         {loading ? (
           <p className="text-white">Carregando...</p>
         ) : (
-          <>
-            
-            {resultValue !== null && (
-              <p className="text-white mt-2 font-semibold">
-                {years === 1
-                  ? `Inflação acumulada no último ano: ${resultValue.toFixed(2)}%`
-                  : `Média da inflação acumulada dos últimos ${years} anos: ${resultValue.toFixed(2)}%`}
-              </p>
-            )}
-          </>
+          resultValue !== null && (
+            <p className="text-white mt-2 font-regular">
+              Inflação acumulada nos últimos 12 meses : <strong>{resultValue.toFixed(2)}%</strong>
+            </p>
+          )
         )}
       </CardContent>
     </Card>

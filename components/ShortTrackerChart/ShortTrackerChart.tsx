@@ -12,23 +12,22 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { SimulationResult } from "@/app/Short-Track/page";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-interface ChartData {
-  [key: string]: [number, number];
-}
 
 interface ShortTrackerChartProps {
-  chartData: ChartData;
+  chartData: Record<string, SimulationResult>;
 }
 
 export default function ShortTrackerChart({ chartData }: ShortTrackerChartProps) {
   // Use useMemo so we recalc only when chartData changes
   const { data, options } = useMemo(() => {
     const labels = Object.keys(chartData);
-    const dataset1 = labels.map((key) => chartData[key][0]); // Acumulado
-    const dataset2 = labels.map((key) => chartData[key][1]); // Com renda extra
+    
+    const dataset1 = labels.map((key) => chartData[key].current_value); 
+    const dataset2 = labels.map((key) => chartData[key].current_extra_value);
 
     const data = {
       labels,
