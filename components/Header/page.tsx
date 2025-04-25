@@ -21,7 +21,7 @@ const components = [
     title: "Short Track",
     href: "/Short-Track",
     description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+      "Projeção de metas financeiras com base em investimentos mensais, renda extra e inflação.",
   },
 ];
 
