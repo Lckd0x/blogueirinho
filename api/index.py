@@ -20,9 +20,9 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,             # Ou use ["*"] para permitir tudo (não recomendado em produção)
+    allow_origins=["*"],             # Ou use ["*"] para permitir tudo (não recomendado em produção)
     allow_credentials=True,
-    allow_methods=["*"],               # Pode restringir para ["GET", "POST", etc.]
+    allow_methods=["*"],              
     allow_headers=["*"],              # Pode restringir para ["Authorization", "Content-Type", etc.]
 )
 
