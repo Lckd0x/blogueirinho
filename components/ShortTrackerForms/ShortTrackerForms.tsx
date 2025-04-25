@@ -43,7 +43,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
         time_unit: "months",
         monthly_investment: "",
         extra_income: "",
-        return_rate: "",
+        return_rate: "10.0",
         start_date: "",
         initial_value: "",
         inflation_rate: "4.0",
