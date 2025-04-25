@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  rewrites: async () => {
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/Short-Track',
+        permanent: false, 
+      },
+    ];
+  },
+  async rewrites() {
     return [
       {
         source: "/api/py/:path*",
