@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { Roboto_Mono } from "next/font/google";
+import { Bebas_Neue, IBM_Plex_Sans } from "next/font/google";
 import InflationDisplay from "@/components/InflationDisplay/page";
 import ShortTrackerForms from "@/components/ShortTrackerForms/ShortTrackerForms";
 import ShortTrackerChart from "@/components/ShortTrackerChart/ShortTrackerChart";
 
-const robotoMono = Roboto_Mono({
+
+const ibm = IBM_Plex_Sans({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400"],
+  variable: "--font-roboto-mono",
+});
+
+const bebas = Bebas_Neue({
+  subsets: ["latin"],
+  weight: ["400"],
   variable: "--font-roboto-mono",
 });
 
@@ -18,13 +25,13 @@ export default function ShortTrack() {
   const [chartData, setChartData] = useState<{ [key: string]: [number, number] }>({});
 
   return (
-    <div className={`${robotoMono.className} min-h-screen p-8 pb-20 sm:p-20 bg-emerald-800`}>
+    <div className={`${ibm.className} min-h-screen p-8 pb-20 sm:p-20 bg-emerald-800`}>
       <div className="mx-auto max-w-4xl flex flex-col gap-8">
-        <h1 className="text-4xl text-amber-100 font-bold">Short Track</h1>
-        <Separator className="bg-white" />
-        <p className="text-amber-100 font-bold">
+        <h1 className={`${bebas.className} text-4xl text-amber-100 font-bold`}>Short Track</h1>
+        <h2 className={` text-amber-100 font-regular text-l`} >
           Simulação de metas financeiras com base em investimentos mensais e rendimentos.
-        </p>
+        </h2>
+        <Separator className="bg-white" />
 
         <ShortTrackerForms onSimulationComplete={setChartData} />
         <InflationDisplay />

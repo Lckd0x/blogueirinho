@@ -1,5 +1,20 @@
-'use client'
+'use client';
 import React, { useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
+import { Cormorant_SC, DM_Sans } from "next/font/google";
+
+const cormorantSC = Cormorant_SC({
+  subsets: ["latin"],
+  weight: ["700"],
+});
+
+const dm = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+
+
 
 const components = [
   {
@@ -14,23 +29,23 @@ export default function Header() {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <header className="bg-amber-100 px-4 py-2 flex justify-between items-center md:min-h-[50px]">
-      <h1 className="text-black font-bold text-sm">O Blogueirinho</h1>
+    <header className={`bg-amber-100 px-4 flex justify-between items-end md:min-h-[50px] ${dm.className}`}>
+      <h1 className={`${cormorantSC.className} text-black self-center text-2xl`}>O Blogueirinho</h1>
       <nav
         className="relative"
         onMouseEnter={() => setDropdownOpen(true)}
         onMouseLeave={() => setDropdownOpen(false)}
       >
-        <button className="text-black text-sm bg-amber-100 hover:bg-amber-200 focus:bg-amber-200 px-4 py-2 rounded-md flex items-center">
+        <button className="text-black text-md bg-amber-100 hover:bg-amber-200 focus:bg-amber-200 px-4 py-2 rounded-md flex items-center">
           Projetos
-          <span className="ml-2">▼</span> {/* Arrow indicating dropdown */}
+          <ChevronDownIcon className="self-center" size={20} />
         </button>
         {isDropdownOpen && (
-          <ul className="absolute right-0 w-60 bg-white shadow-lg rounded-md p-2 z-10">
+          <ul className="absolute right-0 w-40 bg-gray-100 p-2 z-10">
             {components.map((component) => (
               <li
                 key={component.title}
-                className="p-2 hover:bg-gray-100 rounded-md"
+                className="p-2 hover:bg-gray-100"
               >
                 <a
                   href={component.href}

@@ -16,7 +16,6 @@ import {
 
 export default function InflationDisplay() {
   const [years, setYears] = useState(1);
-  const [inflationData, setInflationData] = useState<Record<string, number>>({});
   const [resultValue, setResultValue] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -47,8 +46,6 @@ export default function InflationDisplay() {
           yearlyData[year] += value;
         });
 
-        setInflationData(yearlyData);
-
         const values = Object.values(yearlyData);
         let finalValue = 0;
 
@@ -75,8 +72,8 @@ export default function InflationDisplay() {
         <CardTitle className="text-white">Inflação Acumulada</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <Label className="text-white mr-2">Período:</Label>
+        <div className="mb-2 text-white">
+          <Label className="text-white mr-2 mb-2">Período:</Label>
           <Select onValueChange={(value) => setYears(Number(value))} defaultValue="1">
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Selecione o período" />
@@ -93,17 +90,9 @@ export default function InflationDisplay() {
           <p className="text-white">Carregando...</p>
         ) : (
           <>
-            <ul className="text-white list-disc pl-5">
-              {Object.entries(inflationData)
-                .sort(([a], [b]) => Number(a) - Number(b))
-                .map(([year, value]) => (
-                  <li key={year}>
-                    {year}: {value.toFixed(2)}%
-                  </li>
-                ))}
-            </ul>
+            
             {resultValue !== null && (
-              <p className="text-white mt-4 font-semibold">
+              <p className="text-white mt-2 font-semibold">
                 {years === 1
                   ? `Inflação acumulada no último ano: ${resultValue.toFixed(2)}%`
                   : `Média da inflação acumulada dos últimos ${years} anos: ${resultValue.toFixed(2)}%`}
