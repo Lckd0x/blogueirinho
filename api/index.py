@@ -10,7 +10,7 @@ sys.dont_write_bytecode = True
 
 origins = [
     "http://localhost:3000",
-    "blogueirinho.vercel.app",
+    "https://blogueirinho.vercel.app",
 ]
 
 
