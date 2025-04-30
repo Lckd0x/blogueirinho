@@ -155,7 +155,6 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
 
                 {[
                     { id: "return_rate", label: "Taxa de retorno anual (%)" },
-                    { id: "time", label: "Duração" },
                 ].map(({ id, label }) => (
                     <div key={id}>
                         <Label className="text-white" htmlFor={id}>
@@ -186,26 +185,33 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                         title="Formato esperado: mm-YYYY"
                     />
                 </div>
-                <div key="time_unit">
-                    <Label className="text-white" htmlFor="time_unit">
-                        Unidade de tempo
-                    </Label>
-                    <Select
-                        onValueChange={(value) =>
-                            setForm((prev) => ({ ...prev, time_unit: value }))
-                        }
-                        value={form.time_unit}
-                    >
-                        <SelectTrigger className="bg-gray-300 mt-1">
-                            <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="months">Meses</SelectItem>
-                            <SelectItem value="years">Anos</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <div className="flex flex-col">
+                    <Label className="text-white" htmlFor="time">Duração</Label>
+                    <div className="flex">
+                        <Input
+                            id="time"
+                            name="time"
+                            value={form.time}
+                            onChange={handleFormChange}
+                            className="w-2/3 rounded-r-none text-center"
+                        />
+                        <Select
+                            onValueChange={(value) =>
+                                setForm((prev) => ({ ...prev, time_unit: value }))
+                            }
+                            value={form.time_unit}
+                        >
+                            <SelectTrigger id="time_unit" className="bg-gray-300 mt-1 w-1/3 rounded-l-none">
+                                <SelectValue placeholder="Unidade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="months">Meses</SelectItem>
+                                <SelectItem value="years">Anos</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
-                
+
 
                 <div key={"inflation_rate"}>
                     <Label className="text-white" htmlFor={"inflation_rate"}>
