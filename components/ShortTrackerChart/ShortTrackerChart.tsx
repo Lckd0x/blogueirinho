@@ -24,10 +24,10 @@ interface ShortTrackerChartProps {
 export default function ShortTrackerChart({ chartData }: ShortTrackerChartProps) {
   // Use useMemo so we recalc only when chartData changes
   const { data, options } = useMemo(() => {
-    const labels = Object.keys(chartData);
+    const labels = chartData ? Object.keys(chartData) : [];
     
-    const dataset1 = labels.map((key) => chartData[key].current_value); 
-    const dataset2 = labels.map((key) => chartData[key].current_extra_value);
+    const dataset1 = labels?.map((key) => chartData[key].current_value); 
+    const dataset2 = labels?.map((key) => chartData[key].current_extra_value);
 
     const data = {
       labels,

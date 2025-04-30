@@ -104,7 +104,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
             ),
         };
 
-        const res = await fetch("api/py/simulate", {
+        const res = await fetch( process.env.NEXT_PUBLIC_APP_URL + "/simulate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
