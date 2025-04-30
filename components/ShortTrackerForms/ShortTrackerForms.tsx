@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NumericFormat } from "react-number-format";
 
 interface FormData {
     goal: string;
@@ -89,22 +90,22 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
         // Build the payload making sure to parse numbers appropriately.
         const payload = {
             ...form,
-            goal: Number(form.goal.replace(",",".") || 0),
+            goal: Number(form.goal.replace(",", ".") || 0),
             time: Number(form.time || 0),
-            monthly_investment: Number(form.monthly_investment.replace(",",".") || 0),
-            extra_income: Number(form.extra_income.replace(",",".") || 0),
-            return_rate: Number(form.return_rate.replace(",",".") || 0)/ 100,
-            initial_value: Number(form.initial_value.replace(",",".") || 0),
-            inflation_rate: Number(form.inflation_rate.replace(",",".") || 4.0) / 100,
+            monthly_investment: Number(form.monthly_investment.replace(",", ".") || 0),
+            extra_income: Number(form.extra_income.replace(",", ".") || 0),
+            return_rate: Number(form.return_rate.replace(",", ".") || 0) / 100,
+            initial_value: Number(form.initial_value.replace(",", ".") || 0),
+            inflation_rate: Number(form.inflation_rate.replace(",", ".") || 4.0) / 100,
             one_time_investments: Object.fromEntries(
-                oneTimeInvestments.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",","."))])
+                oneTimeInvestments.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",", "."))])
             ),
             monthly_investment_changes: Object.fromEntries(
-                monthlyChanges.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",","."))])
+                monthlyChanges.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",", "."))])
             ),
         };
 
-        const res = await fetch( process.env.NEXT_PUBLIC_APP_URL + "/simulate", {
+        const res = await fetch(process.env.NEXT_PUBLIC_APP_URL + "/simulate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -119,12 +120,41 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                 <CardTitle className="text-white">Parâmetros de Simulação</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+
                 {[
                     { id: "goal", label: "Meta financeira (R$)" },
                     { id: "monthly_investment", label: "Investimento mensal (R$)" },
                     { id: "extra_income", label: "Renda extra mensal (R$)" },
-                    { id: "return_rate", label: "Taxa de retorno anual (%)" },
                     { id: "initial_value", label: "Valor inicial (R$)" },
+                ].map(({ id, label }) => (
+                    <div key={id}>
+                        <Label className="text-white" htmlFor={id}>
+                            {label}
+                        </Label>
+                        <NumericFormat
+                            id={id}
+                            name={id}
+                            value={form[id as keyof FormData]}
+                            thousandSeparator="."
+                            decimalSeparator=","
+                            prefix="R$ "
+                            decimalScale={2}
+                            allowNegative={false}
+                            onValueChange={(values) =>
+                                setForm((prev) => ({
+                                    ...prev,
+                                    [id]: values.value, // unformatted value like "1000.00"
+                                }))
+                            }
+                            customInput={Input}
+                        />
+
+                    </div>
+                ))}
+
+                {[
+                    { id: "return_rate", label: "Taxa de retorno anual (%)" },
                     { id: "time", label: "Duração" },
                 ].map(({ id, label }) => (
                     <div key={id}>
@@ -140,7 +170,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                         />
                     </div>
                 ))}
-                
+
                 <div key="start_date">
                     <Label className="text-white" htmlFor="start_date">
                         Data inicial
@@ -175,6 +205,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                         </SelectContent>
                     </Select>
                 </div>
+                
 
                 <div key={"inflation_rate"}>
                     <Label className="text-white" htmlFor={"inflation_rate"}>
