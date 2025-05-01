@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { NumericFormat } from "react-number-format";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils"; // se estiver usando utilitários
 
 
 interface FormData {
@@ -66,7 +65,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
     const handleDateSelect = (date: Date | undefined) => {
         if (!date) return;
         setStartDate(date);
-        setForm((prev: any) => ({
+        setForm((prev: FormData) => ({
             ...prev,
             start_date: `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`,
         }));
@@ -169,17 +168,28 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
 
                 {[
                     { id: "return_rate", label: "Taxa de retorno anual (%)" },
+                    { id: "inflation_rate", label: "Inflação anual (%)" },
                 ].map(({ id, label }) => (
                     <div key={id}>
                         <Label className="text-white" htmlFor={id}>
                             {label}
                         </Label>
-                        <Input
+                        <NumericFormat
                             id={id}
                             name={id}
                             value={form[id as keyof FormData]}
-                            onChange={handleFormChange}
-                            className=""
+                            thousandSeparator="."
+                            decimalSeparator=","
+                            suffix=" %"
+                            decimalScale={2}
+                            allowNegative={false}
+                            onValueChange={(values) =>
+                                setForm((prev) => ({
+                                    ...prev,
+                                    [id]: values.value, // unformatted value like "1000.00"
+                                }))
+                            }
+                            customInput={Input}
                         />
                     </div>
                 ))}
@@ -231,40 +241,66 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                     </div>
                 </div>
 
-
-                <div key={"inflation_rate"}>
-                    <Label className="text-white" htmlFor={"inflation_rate"}>
-                        Inflação anual (%)
-                    </Label>
-                    <Input
-                        id={"inflation_rate"}
-                        name={"inflation_rate"}
-                        value={form.inflation_rate}
-                        onChange={handleFormChange}
-                    />
-                </div>
-
                 {/* One-time investments */}
                 <div className="md:col-span-2">
                     <Label className="text-white">Investimentos pontuais</Label>
                     {oneTimeInvestments.map((item, index) => (
-                        <div key={index} className="flex gap-2 mb-2">
-                            <Input
-                                placeholder="mm-YYYY"
-                                value={item.date}
-                                type="text"
-                                pattern="\d{2}-\d{4}"
-                                onChange={(e) =>
-                                    updateDynamicField(oneTimeInvestments, index, "date", e.target.value, setOneTimeInvestments)
-                                }
-                            />
-                            <Input
-                                placeholder="Valor (R$)"
+                        <div key={index} className="flex gap-3 mb-2 mt-1 items-end">
+
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-[180px] text-left font-normal bg-gray-300 text-black"
+                                    >
+                                        {item.date ? item.date : "Selecione uma data"}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={
+                                            item.date
+                                                ? new Date(
+                                                    Number(item.date.split("-")[1]),
+                                                    Number(item.date.split("-")[0]) - 1
+                                                )
+                                                : undefined
+                                        }
+                                        onSelect={(date: Date | undefined) => {
+                                            if (!date) return;
+                                            const formatted = `${(date.getMonth() + 1)
+                                                .toString()
+                                                .padStart(2, "0")}-${date.getFullYear()}`;
+                                            updateDynamicField(
+                                                oneTimeInvestments,
+                                                index,
+                                                "date",
+                                                formatted,
+                                                setOneTimeInvestments
+                                            );
+                                        }}
+                                        fromYear={2000}
+                                        toYear={2100}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+
+                            <NumericFormat
+                                className="mt-0 text-center"
+                                placeholder={"Valor (R$)"}
                                 value={item.amount}
-                                onChange={(e) =>
-                                    updateDynamicField(oneTimeInvestments, index, "amount", e.target.value, setOneTimeInvestments)
+                                thousandSeparator="."
+                                decimalSeparator=","
+                                prefix="R$ "
+                                decimalScale={2}
+                                allowNegative={false}
+                                onValueChange={(e) =>
+                                    updateDynamicField(oneTimeInvestments, index, "amount", e.value, setOneTimeInvestments)
                                 }
+                                customInput={Input}
                             />
+
                         </div>
                     ))}
                     <div className="flex gap-2 mt-2">
@@ -291,21 +327,59 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                 <div className="md:col-span-2">
                     <Label className="text-white">Mudanças no investimento mensal</Label>
                     {monthlyChanges.map((item, index) => (
-                        <div key={index} className="flex gap-2 mb-2">
-                            <Input
-                                placeholder="mm-YYYY"
-                                value={item.date}
-                                pattern="\d{2}-\d{4}"
-                                onChange={(e) =>
-                                    updateDynamicField(monthlyChanges, index, "date", e.target.value, setMonthlyChanges)
-                                }
-                            />
-                            <Input
-                                placeholder="Novo valor (R$)"
+                        <div key={index} className="flex gap-2 mb-2 items-end mt-1">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-[180px] text-left font-normal bg-gray-300 text-black"
+                                    >
+                                        {item.date ? item.date : "Selecione uma data"}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={
+                                            item.date
+                                                ? new Date(
+                                                    Number(item.date.split("-")[1]),
+                                                    Number(item.date.split("-")[0]) - 1
+                                                )
+                                                : undefined
+                                        }
+                                        onSelect={(date: Date | undefined) => {
+                                            if (!date) return;
+                                            const formatted = `${(date.getMonth() + 1)
+                                                .toString()
+                                                .padStart(2, "0")}-${date.getFullYear()}`;
+                                            updateDynamicField(
+                                                monthlyChanges,
+                                                index,
+                                                "date",
+                                                formatted,
+                                                setMonthlyChanges
+                                            );
+                                        }}
+                                        fromYear={2000}
+                                        toYear={2100}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+
+                            <NumericFormat
+                                placeholder={"Valor (R$)"}
                                 value={item.amount}
-                                onChange={(e) =>
-                                    updateDynamicField(monthlyChanges, index, "amount", e.target.value, setMonthlyChanges)
+                                thousandSeparator="."
+                                decimalSeparator=","
+                                prefix="R$ "
+                                decimalScale={2}
+                                allowNegative={false}
+                                onValueChange={(e) =>
+                                    updateDynamicField(monthlyChanges, index, "amount", e.value, setMonthlyChanges)
                                 }
+                                customInput={Input}
+                                className="mt-0 text-center"
                             />
                         </div>
                     ))}
