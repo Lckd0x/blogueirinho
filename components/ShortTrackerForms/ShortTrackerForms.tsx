@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NumericFormat } from "react-number-format";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils"; // se estiver usando utilitários
+
 
 interface FormData {
     goal: string;
@@ -52,10 +56,20 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
 
     const [oneTimeInvestments, setOneTimeInvestments] = useState<InvestmentField[]>([{ date: "", amount: "" }]);
     const [monthlyChanges, setMonthlyChanges] = useState<InvestmentField[]>([{ date: "", amount: "" }]);
+    const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleDateSelect = (date: Date | undefined) => {
+        if (!date) return;
+        setStartDate(date);
+        setForm((prev: any) => ({
+            ...prev,
+            start_date: `${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getFullYear()}`,
+        }));
     };
 
     const updateDynamicField = (
@@ -170,21 +184,26 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
                     </div>
                 ))}
 
-                <div key="start_date">
-                    <Label className="text-white" htmlFor="start_date">
-                        Data inicial
-                    </Label>
-                    <Input
-                        id="start_date"
-                        name="start_date"
-                        type="text"
-                        placeholder="mm-YYYY"
-                        value={form.start_date}
-                        onChange={handleFormChange}
-                        pattern="\d{2}-\d{4}"
-                        title="Formato esperado: mm-YYYY"
-                    />
+                <div>
+                    <Label className="text-white">Data inicial</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" className="w-full text-left font-normal bg-gray-300  text-black">
+                                {startDate ? `${(startDate.getMonth() + 1).toString().padStart(2, "0")}-${startDate.getFullYear()}` : "Selecione uma data"}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                                mode="single"
+                                selected={startDate}
+                                onSelect={handleDateSelect}
+                                fromYear={2000}
+                                toYear={2100}
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
+
                 <div className="flex flex-col">
                     <Label className="text-white" htmlFor="time">Duração</Label>
                     <div className="flex">
