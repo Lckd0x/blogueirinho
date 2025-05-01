@@ -29,11 +29,12 @@ export default function RootLayout({
         <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center bg-emerald-900 min-h-10 ">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          href="https://github.com/Lckd0x/blogueirinho"
           target="_blank"
           rel="noopener noreferrer"
         >
           <Github
+          href="https://github.com/Lckd0x/blogueirinho"
           />
           Github
         </a>
