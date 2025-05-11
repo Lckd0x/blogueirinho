@@ -23,6 +23,7 @@ const bebas = Bebas_Neue({
 export interface SimulationResult {
   current_value: number;
   current_extra_value: number;
+  adjusted_goal_value: number;
   goal_achieved: string;
 }
 

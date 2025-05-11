@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 interface SimulationResult {
   current_value: number;
   current_extra_value: number;
+  adjusted_goal_value: number;
   goal_achieved: string;
 }
 
@@ -23,6 +24,7 @@ export default function ShortTrackerTable({ data }: ShortTrackerTableProps) {
       "Investimentos (R$)": values.current_value,
       "Renda Extra (R$)": values.current_extra_value,
       "Total Acumulado (R$)": values.current_value + values.current_extra_value,
+      "Meta Ajustada (R$)": values.adjusted_goal_value,
       "Meta Atingida": values.goal_achieved === "Y" ? "Sim" : "Não",
     }));
 
@@ -42,6 +44,7 @@ export default function ShortTrackerTable({ data }: ShortTrackerTableProps) {
         <td className="p-2 text-right">R$ {values.current_value.toFixed(2)}</td>
         <td className="p-2 text-right">R$ {values.current_extra_value.toFixed(2)}</td>
         <td className="p-2 text-right font-semibold">R$ {total.toFixed(2)}</td>
+        <td className="p-2 text-right">R$ {values.adjusted_goal_value.toFixed(2)}</td>
         <td className="p-2 text-center">{values.goal_achieved === "Y" ? "✅" : "❌"}</td>
       </tr>
     );
@@ -63,6 +66,7 @@ export default function ShortTrackerTable({ data }: ShortTrackerTableProps) {
               <th className="p-2 text-right">Valor acumulado dos investimentos</th>
               <th className="p-2 text-right">Valor acumulado da renda extra</th>
               <th className="p-2 text-right">Valor total acumulado</th>
+              <th className="p-2 text-right">Meta ajustada</th>
               <th className="p-2 text-center">Meta atingida?</th>
             </tr>
           </thead>

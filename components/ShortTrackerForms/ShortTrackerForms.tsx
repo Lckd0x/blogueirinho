@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Minus, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NumericFormat } from "react-number-format";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { SimulationResult } from "@/app/Short-Track/page";
 
 
 interface FormData {
@@ -33,11 +35,7 @@ interface ShortTrackerFormsProps {
     onSimulationComplete: (result: Record<string, SimulationResult>) => void;
 }
 
-interface SimulationResult {
-    current_value: number;
-    current_extra_value: number;
-    goal_achieved: string;
-}
+
 
 
 export default function ShortTrackerForms({ onSimulationComplete }: ShortTrackerFormsProps) {
@@ -56,6 +54,8 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
     const [oneTimeInvestments, setOneTimeInvestments] = useState<InvestmentField[]>([{ date: "", amount: "" }]);
     const [monthlyChanges, setMonthlyChanges] = useState<InvestmentField[]>([{ date: "", amount: "" }]);
     const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+    const [ignoreInflation, setIgnoreInflation] = useState(false);
+
 
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -100,7 +100,6 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
     };
 
     const handleSubmit = async () => {
-        // Build the payload making sure to parse numbers appropriately.
         const payload = {
             ...form,
             goal: Number(form.goal.replace(",", ".") || 0),
@@ -109,7 +108,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
             extra_income: Number(form.extra_income.replace(",", ".") || 0),
             return_rate: Number(form.return_rate.replace(",", ".") || 0) / 100,
             initial_value: Number(form.initial_value.replace(",", ".") || 0),
-            inflation_rate: Number(form.inflation_rate.replace(",", ".") || 4.0) / 100,
+            inflation_rate: ignoreInflation ? 0 : Number(form.inflation_rate.replace(",", ".") || 4.0) / 100,
             one_time_investments: Object.fromEntries(
                 oneTimeInvestments.filter((i) => i.date && i.amount).map((i) => [i.date, Number(i.amount.replace(",", "."))])
             ),
@@ -165,10 +164,46 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
 
                     </div>
                 ))}
+                
+                <div key={'inflation_rate'}>
+                    <Label className="text-white" htmlFor={"inflation_rate"}>
+                        {'Inflação anual (%)'}
+                    </Label>
+                    <NumericFormat
+                        disabled={ignoreInflation}
+                        id={'inflation_rate'}
+                        name={'inflation_rate'}
+                        value={form['inflation_rate']}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        suffix=" %"
+                        decimalScale={2}
+                        allowNegative={false}
+                        onValueChange={(values) =>
+                            setForm((prev) => ({
+                                ...prev,
+                                ['inflation_rate']: values.value, // unformatted value like "1000.00"
+                            }))
+                        }
+                        customInput={Input}
+                    />
+                </div>
+
+                <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox
+                        id="ignore-inflation"
+                        checked={ignoreInflation}
+                        onCheckedChange={(checked) => setIgnoreInflation(!!checked)}
+                    />
+                    <Label htmlFor="ignore-inflation" className="text-white">
+                        Ignorar inflação
+                    </Label>
+                </div>
+
 
                 {[
                     { id: "return_rate", label: "Taxa de retorno anual (%)" },
-                    { id: "inflation_rate", label: "Inflação anual (%)" },
+
                 ].map(({ id, label }) => (
                     <div key={id}>
                         <Label className="text-white" htmlFor={id}>
