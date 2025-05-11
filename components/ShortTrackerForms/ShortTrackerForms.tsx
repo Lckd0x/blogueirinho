@@ -12,6 +12,8 @@ import { NumericFormat } from "react-number-format";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SimulationResult } from "@/app/Short-Track/page";
+import { toast } from "sonner";
+import { Toaster } from 'sonner';
 
 
 interface FormData {
@@ -117,17 +119,34 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
             ),
         };
 
-        const res = await fetch(process.env.NEXT_PUBLIC_APP_URL + "/simulate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
+        const res = await fetch(
+            process.env.NEXT_PUBLIC_APP_URL + "/simulate",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            }
+        );
+
         const json = await res.json();
+
+        if (!res.ok) {
+            if (res.status == 404 || res.status == 500 || res.status == 400)
+                toast.error("Erro na simulação", {
+                    description: `${res.status} - ${json?.detail}`,
+                });
+            else
+                toast.error("Erro na simulação", {
+                    description: `Erro ao simular meta.`,
+                });
+        }
+
         onSimulationComplete(json.data);
     };
 
     return (
         <Card className="bg-emerald-900 shadow-lg">
+            <Toaster />
             <CardHeader>
                 <CardTitle className="text-white">Parâmetros de Simulação</CardTitle>
             </CardHeader>
@@ -164,7 +183,7 @@ export default function ShortTrackerForms({ onSimulationComplete }: ShortTracker
 
                     </div>
                 ))}
-                
+
                 <div key={'inflation_rate'}>
                     <Label className="text-white" htmlFor={"inflation_rate"}>
                         {'Inflação anual (%)'}
